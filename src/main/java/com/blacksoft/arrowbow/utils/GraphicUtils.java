@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import com.blacksoft.arrowbow.helpers.ParameterizedRunnable;
 import com.blacksoft.arrowbow.items.Media;
 import com.blacksoft.arrowbow.networking.HttpConnection;
+import com.blacksoft.arrowbow.networking.RequestHeader;
 import com.blacksoft.arrowbow.networking.Response;
 import com.blacksoft.arrowbow.storage_manager.StorageConfig;
 
@@ -164,13 +165,15 @@ public class GraphicUtils {
      *                                           it's true it can be used with some operations
      *                                           that can block the main thread like saving a row in SQLITE DB Using ROOM
      *                                           persistence library to not crash the app.
+     * @param requestHeader:                     http request headers like: Authorization, ext..., can be null
      */
     public static void displayCircledImage(@NonNull ImageView imageView,
                                            @Nullable Media media,
                                            @NonNull String storageDirectory,
                                            int compressionSize,
                                            @Nullable ParameterizedRunnable runnable,
-                                           boolean executeRunnableInBackgroundThread) {
+                                           boolean executeRunnableInBackgroundThread,
+                                           @Nullable RequestHeader requestHeader) {
 
         /**
          * case if the image already downloaded
@@ -265,7 +268,7 @@ public class GraphicUtils {
                 RoundedImage roundedImage;
 
                 @Override
-                protected void doInBackgroundThread(int evolutionFlag,Response response) {
+                protected void doInBackgroundThread(int evolutionFlag, Response response) {
                     if (evolutionFlag == FLAG_RESPONSE_IS_READY) {
                         /**
                          * updating the media element with the cached path
@@ -299,8 +302,7 @@ public class GraphicUtils {
                 }
 
             }.getFile((media.getPath()),
-                    null,
-                    HttpConnection.PRIORITY_LOWEST,
+                    requestHeader,
                     storageDirectory + File.separator + StorageConfig.IMAGES_FOLDER
             );
     }
@@ -318,13 +320,15 @@ public class GraphicUtils {
      *                                           it's true it can be used with some operations
      *                                           that can block the main thread like saving a row in SQLITE DB Using ROOM
      *                                           persistence library to not crash the app.
+     * @param requestHeader:                     http request headers like: Authorization, ext..., can be null
      */
     public static void displayImage(@NonNull ImageView imageView,
                                     @Nullable Media media,
                                     @NonNull String storageDirectory,
                                     int compressionSize,
                                     @Nullable ParameterizedRunnable runnable,
-                                    boolean executeRunnableInBackgroundThread) {
+                                    boolean executeRunnableInBackgroundThread,
+                                    @Nullable RequestHeader requestHeader) {
 
         /**
          * case if the image already downloaded
@@ -380,11 +384,25 @@ public class GraphicUtils {
         /**
          *  case it's not downloaded
          */
-            getFile(imageView, media, storageDirectory, compressionSize, runnable, executeRunnableInBackgroundThread);
+            getFile(imageView, media, storageDirectory, compressionSize, runnable, executeRunnableInBackgroundThread, requestHeader);
+    }
+
+    /**
+     *
+     */
+    public static void downloadBitmap(@NonNull String path,
+                                      @Nullable ParameterizedRunnable runnable,
+                                      boolean executeRunnableInBackgroundThread) {
     }
 
     @NonNull
-    private static HttpConnection getFile(@NonNull ImageView imageView, @Nullable Media media, @NonNull String storageDirectory, int compressionSize, @Nullable ParameterizedRunnable runnable, boolean executeRunnableInBackgroundThread) {
+    private static HttpConnection getFile(@NonNull ImageView imageView,
+                                          @Nullable Media media,
+                                          @NonNull String storageDirectory,
+                                          int compressionSize,
+                                          @Nullable ParameterizedRunnable runnable,
+                                          boolean executeRunnableInBackgroundThread,
+                                          @Nullable RequestHeader requestHeader) {
         return new HttpConnection() {
 
             @Override
@@ -423,8 +441,7 @@ public class GraphicUtils {
 
             }
         }.getFile((media.getPath()),
-                null,
-                HttpConnection.PRIORITY_LOWEST,
+                requestHeader,
                 storageDirectory + File.separator + StorageConfig.IMAGES_FOLDER
         );
     }

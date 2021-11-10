@@ -98,10 +98,9 @@ public class HttpConnection {
      */
     private String urlStr;
     /**
-     * Whether the thread is in foreground or in background by default it's in background to not put pressure
-     * on the system while choosing which thread will be working on device resources
+     * Whether the thread is in foreground or in background by default it's in foreground
      */
-    private int threadPriority;
+    private int threadPriority = PRIORITY_HIGHEST;
     /**
      * Data type you want to send or download.
      */
@@ -353,15 +352,11 @@ public class HttpConnection {
      * @param requestHeader:  the header fields you want to pu into your http request, every {@link RequestHeader} has
      *                        its own request property
      *                        {@link Field}.
-     * @param threadPriority: Whether the thread is in foreground or in background by default it's in background to not put pressure
-     *                        on the system while choosing which thread will be working on device resources.
      */
     public final HttpConnection getText(@Nullable String url,
-                                        @Nullable RequestHeader requestHeader,
-                                        int threadPriority) {
+                                        @Nullable RequestHeader requestHeader) {
         dataType = DATATYPE_TEXT;
         this.urlStr = url;
-        this.threadPriority = threadPriority;
         readFromServer(requestHeader, null);
         return this;
     }
@@ -376,18 +371,33 @@ public class HttpConnection {
      * @param requestHeader:    the header fields you want to pu into your http request, every {@link RequestHeader} has
      *                          its own request property
      *                          {@link Field}.
-     * @param threadPriority:   Whether the thread is in foreground or in background by default it's in background to not put pressure
-     *                          on the system while choosing which thread will be working on device resources.
-     *                          possible values can be chosen from constant priorities.
      * @param storageDirectory: where you want to store your file.
      */
     public final HttpConnection getFile(@Nullable String url,
                                         @Nullable RequestHeader requestHeader,
-                                        int threadPriority,
                                         @NonNull String storageDirectory) {
         dataType = DATATYPE_FILE;
         this.urlStr = url;
-        this.threadPriority = threadPriority;
+        readFromServer(requestHeader, storageDirectory);
+        return this;
+    }
+
+    /**
+     * Exposes an input stream to be read from.
+     * <p>
+     * Result in callback methods will be a String equal to the returned value from server.
+     *
+     * @param url:              url you want to get your data from.
+     * @param requestHeader:    the header fields you want to pu into your http request, every {@link RequestHeader} has
+     *                          its own request property
+     *                          {@link Field}.
+     * @param storageDirectory: where you want to store your file.
+     */
+    public final HttpConnection getInputStream(@Nullable String url,
+                                        @Nullable RequestHeader requestHeader,
+                                        @NonNull String storageDirectory) {
+        this.dataType = DATATYPE_INPUT_STREAM;
+        this.urlStr = url;
         readFromServer(requestHeader, storageDirectory);
         return this;
     }
@@ -529,6 +539,9 @@ public class HttpConnection {
                                     informUserWithNewFlag(FLAG_RESPONSE_IS_READY, response.setResult(path));
                                     break;
 
+                                case DATATYPE_INPUT_STREAM:
+                                    informUserWithNewFlag(FLAG_RESPONSE_IS_READY, response.setResult(inputStream));
+                                    break;
                             }
 
                         }
@@ -576,19 +589,15 @@ public class HttpConnection {
      *                                          its own request property
      *                                          {@link Field}.
      * @param text:                             text you want to send.
-     * @param threadPriority:                   Whether the thread is in foreground or in background by default it's in background to not put pressure
-     *                                          on the system while choosing which thread will be working on device resources.
      * @param responseDataType:                 integer to specify whether it's a text or a File
      * @param storageDirectoryIfResponseIsFile: where to put the file in case the response is a file
      */
     public final HttpConnection postText(@Nullable String url,
                                          @Nullable RequestHeader requestHeader,
                                          @Nullable String text,
-                                         int threadPriority,
                                          int responseDataType,
                                          @Nullable String storageDirectoryIfResponseIsFile) {
         this.urlStr = url;
-        this.threadPriority = threadPriority;
         writeToServer(text, CONNECTION_METHOD_POST, requestHeader, responseDataType, storageDirectoryIfResponseIsFile);
         return this;
     }
@@ -603,20 +612,15 @@ public class HttpConnection {
      *                                          its own request property
      *                                          {@link Field}.
      * @param text:                             text you want to send.
-     * @param threadPriority:                   Whether the thread is in foreground or in background by default it's in background to not put pressure
-     *                                          on the system while choosing which thread will be working on device resources,
-     *                                          possible values can be chosen from constant priorities
      * @param responseDataType:                 integer to specify whether it's a text or a File
      * @param storageDirectoryIfResponseIsFile: where to put the file in case the response is a file
      */
     public final HttpConnection putText(@Nullable String url,
                                         @Nullable RequestHeader requestHeader,
                                         @Nullable String text,
-                                        int threadPriority,
                                         int responseDataType,
                                         @Nullable String storageDirectoryIfResponseIsFile) {
         this.urlStr = url;
-        this.threadPriority = threadPriority;
         writeToServer(text, CONNECTION_METHOD_PUT, requestHeader, responseDataType, storageDirectoryIfResponseIsFile);
         return this;
     }
@@ -631,20 +635,15 @@ public class HttpConnection {
      *                                          its own request property
      *                                          {@link Field}.
      * @param text:                             text you want to send.
-     * @param threadPriority:                   Whether the thread is in foreground or in background by default it's in background to not put pressure
-     *                                          on the system while choosing which thread will be working on device resources,
-     *                                          possible values can be chosen from constants.
      * @param responseDataType:                 integer to specify whether it's a text or a File
      * @param storageDirectoryIfResponseIsFile: where to put the file in case the response is a file
      */
     public final HttpConnection patchText(@Nullable String url,
                                           @Nullable RequestHeader requestHeader,
                                           @Nullable String text,
-                                          int threadPriority,
                                           int responseDataType,
                                           @Nullable String storageDirectoryIfResponseIsFile) {
         this.urlStr = url;
-        this.threadPriority = threadPriority;
         writeToServer(text, CONNECTION_METHOD_PATCH, requestHeader, responseDataType, storageDirectoryIfResponseIsFile);
         return this;
     }
@@ -659,20 +658,15 @@ public class HttpConnection {
      *                                          its own request property
      *                                          {@link Field}.
      * @param text:                             text you want to send.
-     * @param threadPriority:                   Whether the thread is in foreground or in background by default it's in background to not put pressure
-     *                                          on the system while choosing which thread will be working on device resources,
-     *                                          possible values can be chosen from constants
      * @param responseDataType:                 integer to specify whether it's a text or a File
      * @param storageDirectoryIfResponseIsFile: where to put the file in case the response is a file
      */
     public final HttpConnection deleteText(@Nullable String url,
                                            @Nullable RequestHeader requestHeader,
                                            @Nullable String text,
-                                           int threadPriority,
                                            int responseDataType,
                                            @Nullable String storageDirectoryIfResponseIsFile) {
         this.urlStr = url;
-        this.threadPriority = threadPriority;
         writeToServer(text, CONNECTION_METHOD_DELETE, requestHeader, responseDataType, storageDirectoryIfResponseIsFile);
         return this;
     }
@@ -686,21 +680,16 @@ public class HttpConnection {
      * @param requestHeader:                    the header fields you want to pu into your http request, every {@link RequestHeader} has
      *                                          its own request property
      *                                          {@link Field}.
-     * @param threadPriority:                   Whether the thread is in foreground or in background by default it's in background to not put pressure
-     *                                          on the system while choosing which thread will be working on device resources,
-     *                                          possible values can be chosen from constants.
      * @param fields:                           form fields (String(s) / File(s)) you want to send.
      * @param responseDataType:                 integer to specify whether it's a text or a File
      * @param storageDirectoryIfResponseIsFile: where to put the file in case the response is a file
      */
     public final void postMultiPartDataForm(@Nullable String url,
                                             @Nullable RequestHeader requestHeader,
-                                            int threadPriority,
                                             int responseDataType,
                                             @Nullable String storageDirectoryIfResponseIsFile,
                                             @Nullable Field... fields) {
         this.urlStr = url;
-        this.threadPriority = threadPriority;
         this.dataType = DATATYPE_MULTI_PART_DATA_FORM;
         writeToServer(fields, CONNECTION_METHOD_POST, requestHeader, responseDataType, storageDirectoryIfResponseIsFile);
     }
@@ -965,8 +954,7 @@ public class HttpConnection {
     /**
      * Setting thread priority over other threads running in the system.
      *
-     * @param threadPriority: Whether the thread is in foreground or in background by default it's in background to not put pressure
-     *                        on the system while choosing which thread will be working on device resources.
+     * @param threadPriority: Whether the thread is in foreground or in background by default it's in foreground.
      */
     public final HttpConnection setThreadPriority(int threadPriority) {
         this.threadPriority = threadPriority;

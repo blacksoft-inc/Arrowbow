@@ -3,12 +3,14 @@ package com.blacksoft.arrowbow.utils;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
-import com.blacksoft.arrowbow.items.Media;
 import com.blacksoft.arrowbow.storage_manager.FileType;
+import com.blacksoft.arrowbow.storage_manager.StorageUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -91,14 +93,14 @@ public abstract class MemoryUtils {
     /**
      * Delete images from Disk
      *
-     * @param medias: medias you want to delete
+     * @param imagesPaths: images you want to delete
      */
-    public static final void deleteImagesFromStorage(@Nullable Media[] medias) {
-        if (medias != null)
-            for (int i = 0; i < medias.length; i++) {
-                Media current = medias[i];
-                if (current.isStoredLocally() && current.guessMediaType() == FileType.IMAGE)
-                    new File(current.getPath()).delete();
+    public static final void deleteImagesFromStorage(@Nullable String[] imagesPaths) {
+        if (imagesPaths != null)
+            for (int i = 0; i < imagesPaths.length; i++) {
+                String current = imagesPaths[i];
+                if (StorageUtils.isStoredLocally(current))
+                    new File(current).delete();
 
             }
     }
@@ -106,28 +108,27 @@ public abstract class MemoryUtils {
     /**
      * Delete images from Disk
      *
-     * @param medias: medias you want to delete
+     * @param imagesPaths: images you want to delete
      */
-    public static final void deleteImagesFromStorage(@Nullable ArrayList<Media> medias) {
-        if (medias != null)
-            for (int i = 0; i < medias.size(); i++) {
-                Media current = medias.get(i);
-                if (current.isStoredLocally() && current.guessMediaType() == FileType.IMAGE)
-                    new File(current.getPath()).delete();
+    public static final void deleteImagesFromStorage(@Nullable ArrayList<String> imagesPaths) {
+        if (imagesPaths != null)
+            for (int i = 0; i < imagesPaths.size(); i++) {
+                String current = imagesPaths.get(i);
+                if (StorageUtils.isStoredLocally(current))
+                    new File(current).delete();
             }
     }
 
     /**
      * Delete images from Disk
      *
-     * @param medias: medias you want to delete from ram
+     * @param imagesPaths: images you want to delete from ram
      */
-    public static final void removeImagesFromRam(@Nullable ArrayList<Media> medias) {
-        if (medias != null)
-            for (int i = 0; i < medias.size(); i++) {
-                Media current = medias.get(i);
-                if (current.guessMediaType() == FileType.IMAGE)
-                    removeImageFromRam(current.getPath());
+    public static final void removeImagesFromRam(@Nullable ArrayList<String> imagesPaths) {
+        if (imagesPaths != null)
+            for (int i = 0; i < imagesPaths.size(); i++) {
+                String current = imagesPaths.get(i);
+                removeImageFromRam(current);
             }
     }
 
@@ -136,6 +137,7 @@ public abstract class MemoryUtils {
      *
      * @param context: preferably application context
      */
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public static final void clearApplicationData(@NonNull Context context) {
         ((ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE)).
                 clearApplicationUserData();
@@ -166,7 +168,9 @@ public abstract class MemoryUtils {
     public static final long getImageSize(@NonNull String id) {
         Bitmap bitmap = getImageFromRam(id);
         if (bitmap != null) {
-            return bitmap.getAllocationByteCount();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                return bitmap.getAllocationByteCount();
+            } else return bitmap.getByteCount();
         }
         return 0;
     }

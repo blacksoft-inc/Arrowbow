@@ -316,5 +316,13 @@ public final class StorageUtils {
         }
     }
 
+    /**
+     * Tells if this file is stored locally on this device or not
+     */
+    public static boolean isStoredLocally(@Nullable String filePath) {
+        if (filePath == null || filePath.isEmpty()) return false;
+        File file = new File(filePath);
+        return (file.exists() && !file.isDirectory());
+    }
 
 }

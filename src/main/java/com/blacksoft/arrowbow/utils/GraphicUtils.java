@@ -19,11 +19,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.blacksoft.arrowbow.helpers.ParameterizedRunnable;
-import com.blacksoft.arrowbow.items.Media;
 import com.blacksoft.arrowbow.networking.HttpConnection;
 import com.blacksoft.arrowbow.networking.RequestHeader;
 import com.blacksoft.arrowbow.networking.Response;
 import com.blacksoft.arrowbow.storage_manager.StorageConfig;
+import com.blacksoft.arrowbow.storage_manager.StorageUtils;
 
 import java.io.File;
 import java.io.InputStream;
@@ -155,7 +155,7 @@ public class GraphicUtils {
      * displays a circled Image
      *
      * @param imageView:                         imageview you want to display the image in
-     * @param media:                             image path(url or local path)
+     * @param filePath:                          image path(url or local path)
      * @param compressionSize:                   means the image will be smaller (1/compressionSize)
      * @param runnable:                          piece of code you want to run after the image is downloaded,
      *                                           cached and displayed, this method gives the image cached path
@@ -168,7 +168,7 @@ public class GraphicUtils {
      * @param requestHeader:                     http request headers like: Authorization, ext..., can be null
      */
     public static void displayCircledImage(@NonNull ImageView imageView,
-                                           @Nullable Media media,
+                                           @Nullable String filePath,
                                            @NonNull String storageDirectory,
                                            int compressionSize,
                                            @Nullable ParameterizedRunnable runnable,
@@ -178,12 +178,12 @@ public class GraphicUtils {
         /**
          * case if the image already downloaded
          */
-        if (media != null && media.isStoredLocally()) {
+        if (StorageUtils.isStoredLocally(filePath)) {
 
             /**
              * case if image already exists in ram
              */
-            if (MemoryUtils.imageInRam(media.getPath())) {
+            if (MemoryUtils.imageInRam(filePath)) {
 
                 /**
                  * using thread to not block the app main thread
@@ -193,25 +193,23 @@ public class GraphicUtils {
 
                     @Override
                     public void run() {
-                        roundedImage = new RoundedImage(MemoryUtils.getImageFromRam(media.getPath()));
-                        new Handler(Looper.getMainLooper()).post(new Runnable() {
-                            @Override
-                            public void run() {
-                                imageView.setImageDrawable(roundedImage);
-                                /**
-                                 * returning the cached file path in background thread
-                                 */
-                                if (!executeRunnableInBackgroundThread && runnable != null) {
-                                    runnable.setParams(media.getCachedPath());
-                                    runnable.run();
-                                }
+                        roundedImage = new RoundedImage(MemoryUtils.getImageFromRam(filePath));
+                        //
+                        new Handler(Looper.getMainLooper()).post(() -> {
+                            imageView.setImageDrawable(roundedImage);
+                            /**
+                             * returning the cached file path in background thread
+                             */
+                            if (!executeRunnableInBackgroundThread && runnable != null) {
+                                runnable.setParams(filePath);
+                                runnable.run();
                             }
                         });
                         /**
                          * returning the cached file path in background thread
                          */
                         if (executeRunnableInBackgroundThread && runnable != null) {
-                            runnable.setParams(media.getCachedPath());
+                            runnable.setParams(filePath);
                             runnable.run();
                         }
                     }
@@ -231,8 +229,8 @@ public class GraphicUtils {
                     @Override
                     public void run() {
 
-                        Bitmap bitmap = GraphicUtils.loadCompressedBitmap(compressionSize, media.getCachedPath());
-                        MemoryUtils.addImageToRam(media.getPath(), bitmap);
+                        Bitmap bitmap = GraphicUtils.loadCompressedBitmap(compressionSize, filePath);
+                        MemoryUtils.addImageToRam(filePath, bitmap);
                         roundedImage = new RoundedImage(bitmap);
 
                         new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -243,7 +241,7 @@ public class GraphicUtils {
                                  * returning the cached file path in background thread
                                  */
                                 if (!executeRunnableInBackgroundThread && runnable != null) {
-                                    runnable.setParams(media.getCachedPath());
+                                    runnable.setParams(filePath);
                                     runnable.run();
                                 }
                             }
@@ -252,7 +250,7 @@ public class GraphicUtils {
                          * returning the cached file path in background thread
                          */
                         if (executeRunnableInBackgroundThread && runnable != null) {
-                            runnable.setParams(media.getCachedPath());
+                            runnable.setParams(filePath);
                             runnable.run();
                         }
                     }
@@ -266,6 +264,7 @@ public class GraphicUtils {
          */
             new HttpConnection() {
                 RoundedImage roundedImage;
+                String cachedPath = null;
 
                 @Override
                 protected void doInBackgroundThread(int evolutionFlag, Response response) {
@@ -273,10 +272,10 @@ public class GraphicUtils {
                         /**
                          * updating the media element with the cached path
                          */
-                        media.setCachedPath(response.toString());
-                        Bitmap bitmap = GraphicUtils.loadCompressedBitmap(compressionSize, media.getCachedPath());
+                        cachedPath = response.getResult().toString();
+                        Bitmap bitmap = GraphicUtils.loadCompressedBitmap(compressionSize, cachedPath);
                         roundedImage = new RoundedImage(bitmap);
-                        MemoryUtils.addImageToRam(media.getPath(), bitmap);
+                        MemoryUtils.addImageToRam(filePath, bitmap);
 
                         new Handler(Looper.getMainLooper()).post(new Runnable() {
                             @Override
@@ -286,7 +285,7 @@ public class GraphicUtils {
                                  * returning the cached file path in background thread
                                  */
                                 if (!executeRunnableInBackgroundThread && runnable != null) {
-                                    runnable.setParams(media.getCachedPath());
+                                    runnable.setParams(cachedPath);
                                     runnable.run();
                                 }
                             }
@@ -295,13 +294,13 @@ public class GraphicUtils {
                          * returning the cached file path in background thread
                          */
                         if (executeRunnableInBackgroundThread && runnable != null) {
-                            runnable.setParams(media.getCachedPath());
+                            runnable.setParams(cachedPath);
                             runnable.run();
                         }
                     }
                 }
 
-            }.getFile((media.getPath()),
+            }.getFile(filePath,
                     requestHeader,
                     storageDirectory + File.separator + StorageConfig.IMAGES_FOLDER
             );
@@ -311,7 +310,7 @@ public class GraphicUtils {
      * display Image
      *
      * @param imageView:                         imageview you want to display the image in
-     * @param media:                             image path(url or local path)
+     * @param filePath:                          image path(url or local path)
      * @param compressionSize:                   means the image will be smaller (1/compressionSize)
      * @param runnable:                          piece of code you want to run after the image is downloaded,
      *                                           cached and displayed, this method gives the image cached path inside the runnable.
@@ -323,7 +322,7 @@ public class GraphicUtils {
      * @param requestHeader:                     http request headers like: Authorization, ext..., can be null
      */
     public static void displayImage(@NonNull ImageView imageView,
-                                    @Nullable Media media,
+                                    @Nullable String filePath,
                                     @NonNull String storageDirectory,
                                     int compressionSize,
                                     @Nullable ParameterizedRunnable runnable,
@@ -333,13 +332,13 @@ public class GraphicUtils {
         /**
          * case if the image already downloaded
          */
-        if (media != null && media.isStoredLocally()) {
+        if (StorageUtils.isStoredLocally(filePath)) {
 
             /**
              * case if image already exists in ram
              */
-            if (MemoryUtils.imageInRam(media.getPath())) {
-                imageView.setImageBitmap(MemoryUtils.getImageFromRam(media.getPath()));
+            if (MemoryUtils.imageInRam(filePath)) {
+                imageView.setImageBitmap(MemoryUtils.getImageFromRam(filePath));
             } else {
 
                 /**
@@ -347,34 +346,27 @@ public class GraphicUtils {
                  *
                  * using thread to not block the app main thread
                  */
-                new Thread(new Runnable() {
+                new Thread(() -> {
 
-                    @Override
-                    public void run() {
+                    Bitmap bitmap = GraphicUtils.loadCompressedBitmap(compressionSize, filePath);
+                    MemoryUtils.addImageToRam(filePath, bitmap);
 
-                        Bitmap bitmap = GraphicUtils.loadCompressedBitmap(compressionSize, media.getCachedPath());
-                        MemoryUtils.addImageToRam(media.getPath(), bitmap);
-
-                        new Handler(Looper.getMainLooper()).post(new Runnable() {
-                            @Override
-                            public void run() {
-                                imageView.setImageBitmap(bitmap);
-                                /**
-                                 * returning the cached file path in background thread
-                                 */
-                                if (!executeRunnableInBackgroundThread && runnable != null) {
-                                    runnable.setParams(media.getCachedPath());
-                                    runnable.run();
-                                }
-                            }
-                        });
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        imageView.setImageBitmap(bitmap);
                         /**
                          * returning the cached file path in background thread
                          */
-                        if (executeRunnableInBackgroundThread && runnable != null) {
-                            runnable.setParams(media.getCachedPath());
+                        if (!executeRunnableInBackgroundThread && runnable != null) {
+                            runnable.setParams(filePath);
                             runnable.run();
                         }
+                    });
+                    /**
+                     * returning the cached file path in background thread
+                     */
+                    if (executeRunnableInBackgroundThread && runnable != null) {
+                        runnable.setParams(filePath);
+                        runnable.run();
                     }
                 }).start();
 
@@ -384,7 +376,7 @@ public class GraphicUtils {
         /**
          *  case it's not downloaded
          */
-            getFile(imageView, media, storageDirectory, compressionSize, runnable, executeRunnableInBackgroundThread, requestHeader);
+            getFile(imageView, filePath, storageDirectory, compressionSize, runnable, executeRunnableInBackgroundThread, requestHeader);
     }
 
     /**
@@ -397,13 +389,14 @@ public class GraphicUtils {
 
     @NonNull
     private static HttpConnection getFile(@NonNull ImageView imageView,
-                                          @Nullable Media media,
+                                          @Nullable String filePath,
                                           @NonNull String storageDirectory,
                                           int compressionSize,
                                           @Nullable ParameterizedRunnable runnable,
                                           boolean executeRunnableInBackgroundThread,
                                           @Nullable RequestHeader requestHeader) {
         return new HttpConnection() {
+            String cachedPath = null;
 
             @Override
             protected void doInBackgroundThread(int evolutionFlag, Response response) {
@@ -413,9 +406,9 @@ public class GraphicUtils {
                     /**
                      * updating the media element with the cached path
                      */
-                    media.setCachedPath(response.getResult().toString());
-                    Bitmap bitmap = GraphicUtils.loadCompressedBitmap(compressionSize, media.getCachedPath());
-                    MemoryUtils.addImageToRam(media.getPath(), bitmap);
+                    cachedPath = response.getResult().toString();
+                    Bitmap bitmap = GraphicUtils.loadCompressedBitmap(compressionSize, cachedPath);
+                    MemoryUtils.addImageToRam(filePath, bitmap);
 
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
@@ -425,7 +418,7 @@ public class GraphicUtils {
                              * returning the cached file path in background thread
                              */
                             if (!executeRunnableInBackgroundThread && runnable != null) {
-                                runnable.setParams(media.getCachedPath());
+                                runnable.setParams(cachedPath);
                                 runnable.run();
                             }
                         }
@@ -434,13 +427,13 @@ public class GraphicUtils {
                      * returning the cached file path in background thread
                      */
                     if (executeRunnableInBackgroundThread && runnable != null) {
-                        runnable.setParams(media.getCachedPath());
+                        runnable.setParams(cachedPath);
                         runnable.run();
                     }
                 }
 
             }
-        }.getFile((media.getPath()),
+        }.getFile(filePath,
                 requestHeader,
                 storageDirectory + File.separator + StorageConfig.IMAGES_FOLDER
         );

@@ -21,6 +21,8 @@ public interface FileType {
     short WINDOWS_EXECUTABLE = 1509;
     short WINDOWS_EXTERNAL_LIBRARY = 1513;
     short SQL_DATABASE = 1641;
+    short ANDROID_APPLICATION = 1777;
+    short JAR = 1856;
     short OTHERS = Short.MAX_VALUE;
 
 }

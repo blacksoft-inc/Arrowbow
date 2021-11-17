@@ -38,33 +38,37 @@ public final class StorageUtils {
 
         else if (fileType == FileType.SQL_DATABASE) typePrefix = "database";
 
+        else if (fileType == FileType.ANDROID_APPLICATION) typePrefix = "android_application";
+
+        else if (fileType == FileType.JAR) typePrefix = "jar";
+
         else
-            switch (fileType) {
-                case FileType.IMAGE:
-                    typePrefix = "picture";
-                    break;
+        switch (fileType) {
+            case FileType.IMAGE:
+                typePrefix = "picture";
+                break;
 
-                case FileType.VIDEO:
-                    typePrefix = "movie";
-                    break;
+            case FileType.VIDEO:
+                typePrefix = "movie";
+                break;
 
-                case FileType.AUDIO:
-                    typePrefix = "audio";
-                    break;
+            case FileType.AUDIO:
+                typePrefix = "audio";
+                break;
 
-                case FileType.PDF:
-                    typePrefix = "pdf";
-                    break;
+            case FileType.PDF:
+                typePrefix = "pdf";
+                break;
 
-                case FileType.TEXT:
-                    typePrefix = "text";
-                    break;
+            case FileType.TEXT:
+                typePrefix = "text";
+                break;
 
-                case FileType.XML:
-                    typePrefix = "xml";
-                    break;
+            case FileType.XML:
+                typePrefix = "xml";
+                break;
 
-            }
+        }
 
         //
         long time = new Date().getTime();
@@ -170,7 +174,7 @@ public final class StorageUtils {
 
         else if (lCPath.contains(".xls") || lCPath.contains(".xlt")
                 || lCPath.contains(".xla") || lCPath.contains(".xlsx")
-                || lCPath.contains(".xlsm") || lCPath.contains(".")
+                || lCPath.contains(".xlsm")
                 || lCPath.contains(".xltx") || lCPath.contains(".xltm")
                 || lCPath.contains(".xlam")
         ) return FileType.MICROSOFT_EXCEL;
@@ -199,6 +203,14 @@ public final class StorageUtils {
         else if (lCPath.contains(".db") || lCPath.contains(".mdf")
                 || lCPath.contains(".sdf")
         ) return FileType.SQL_DATABASE;
+
+        else if (lCPath.equals("application/vnd.android.package-archive")
+                || lCPath.contains(".apk")
+                || lCPath.contains(".aab"))
+            return FileType.ANDROID_APPLICATION;
+
+        else if (lCPath.equals(RequestHeader.DataType.JAR_FILE)
+                || lCPath.contains(".jar")) return FileType.JAR;
 
         else return FileType.OTHERS;
     }
@@ -287,11 +299,17 @@ public final class StorageUtils {
             else if (lcMime.contains(RequestHeader.DataType.VIDEO_WEBM)) extension = ".webm";
 
             /**
+             * for Android app
+             */
+            else if (lcMime.contains(RequestHeader.DataType.APPLICATION_ANDROID))
+                extension = ".apk";
+
+            /**
              *For Others
              */
             else if (lcMime.contains(RequestHeader.DataType.APPLICATION_XML)) extension = ".xml";
             else if (lcMime.contains(RequestHeader.DataType.ZIP)) extension = ".zip";
-            else if (lcMime.contains(RequestHeader.DataType.JAR)) extension = ".jar";
+            else if (lcMime.contains(RequestHeader.DataType.JAR_FILE)) extension = ".jar";
             else if (lcMime.contains(RequestHeader.DataType.RAR)) extension = ".rar";
             else if (lcMime.contains(RequestHeader.DataType.TAR)) extension = ".tar";
             else if (lcMime.contains(RequestHeader.DataType.XLS)) extension = ".xls";

@@ -31,12 +31,12 @@ import java.io.InputStream;
 /**
  * All utils needed to display images
  */
-public class GraphicUtils {
+public class ImageUtils {
 
     /**
      * private constructor to prevent users from creating an instance from this class
      */
-    private GraphicUtils() {
+    private ImageUtils() {
     }
 
     /**
@@ -229,7 +229,7 @@ public class GraphicUtils {
                     @Override
                     public void run() {
 
-                        Bitmap bitmap = GraphicUtils.loadCompressedBitmap(compressionSize, filePath);
+                        Bitmap bitmap = ImageUtils.loadCompressedBitmap(compressionSize, filePath);
                         MemoryUtils.addImageToRam(filePath, bitmap);
                         roundedImage = new RoundedImage(bitmap);
 
@@ -273,7 +273,7 @@ public class GraphicUtils {
                          * updating the media element with the cached path
                          */
                         cachedPath = response.getResult().toString();
-                        Bitmap bitmap = GraphicUtils.loadCompressedBitmap(compressionSize, cachedPath);
+                        Bitmap bitmap = ImageUtils.loadCompressedBitmap(compressionSize, cachedPath);
                         roundedImage = new RoundedImage(bitmap);
                         MemoryUtils.addImageToRam(filePath, bitmap);
 
@@ -348,7 +348,7 @@ public class GraphicUtils {
                  */
                 new Thread(() -> {
 
-                    Bitmap bitmap = GraphicUtils.loadCompressedBitmap(compressionSize, filePath);
+                    Bitmap bitmap = ImageUtils.loadCompressedBitmap(compressionSize, filePath);
                     MemoryUtils.addImageToRam(filePath, bitmap);
 
                     new Handler(Looper.getMainLooper()).post(() -> {
@@ -379,13 +379,47 @@ public class GraphicUtils {
             getFile(imageView, filePath, storageDirectory, compressionSize, runnable, executeRunnableInBackgroundThread, requestHeader);
     }
 
-    /**
-     *
-     */
-    public static void downloadBitmap(@NonNull String path,
-                                      @Nullable ParameterizedRunnable runnable,
-                                      boolean executeRunnableInBackgroundThread) {
-    }
+//    /**
+//     *
+//     */
+//    public static void downloadBitmap(@NonNull String path,
+//                                      @Nullable RequestHeader requestHeader,
+//                                      @Nullable ParameterizedRunnable runnable,
+//                                      boolean executeRunnableInBackgroundThread) {
+//
+//        return new HttpConnection() {
+//
+//            @Override
+//            protected void doInBackgroundThread(int evolutionFlag, Response response) {
+//                //
+//                if (evolutionFlag == FLAG_RESPONSE_IS_READY) {
+//
+//                    /**
+//                     * updating the media element with the cached path
+//                     */
+//                    InputStream inputStream = ((InputStream) response.getResult());
+//                    Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+//                    if (!executeRunnableInBackgroundThread && runnable != null)
+//                        new Handler(Looper.getMainLooper()).post(() -> {
+//                            //
+//                            runnable.setParams(bitmap);
+//                            runnable.run();
+//                        });
+//                    /**
+//                     * returning the cached file path in background thread
+//                     */
+//                    else if (runnable != null) {
+//                        runnable.setParams(bitmap);
+//                        runnable.run();
+//
+//                    }
+//
+//                }
+//            }
+//        }.getInputStream(path,
+//                requestHeader);
+//
+//    }
 
     @NonNull
     private static HttpConnection getFile(@NonNull ImageView imageView,
@@ -407,7 +441,7 @@ public class GraphicUtils {
                      * updating the media element with the cached path
                      */
                     cachedPath = response.getResult().toString();
-                    Bitmap bitmap = GraphicUtils.loadCompressedBitmap(compressionSize, cachedPath);
+                    Bitmap bitmap = ImageUtils.loadCompressedBitmap(compressionSize, cachedPath);
                     MemoryUtils.addImageToRam(filePath, bitmap);
 
                     new Handler(Looper.getMainLooper()).post(new Runnable() {

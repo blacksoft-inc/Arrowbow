@@ -114,12 +114,12 @@ public class HttpConnection {
     /**
      * Connection timeout in millis
      */
-    private int connectionTimeout = 15000;
+    private int connectionTimeout = 3000;
 
     /**
      * Read timeout
      */
-    private int readTimeout = 30000;
+    private int readTimeout = 3000;
 
     /**
      * Only one constructor
@@ -258,20 +258,20 @@ public class HttpConnection {
             /**
              * Different text responses your app can read from server.
              */
-            connection.addRequestProperty(RequestHeader.Field.ACCEPT,
-                    RequestHeader.DataType.APPLICATION_JSON);
-
-            connection.addRequestProperty(RequestHeader.Field.ACCEPT,
-                    RequestHeader.DataType.APPLICATION_XML);
-
-            connection.addRequestProperty(RequestHeader.Field.ACCEPT,
-                    RequestHeader.DataType.TEXT_PLAIN);
-
-            connection.addRequestProperty(RequestHeader.Field.ACCEPT,
-                    RequestHeader.DataType.TEXT_HTML);
-
-            connection.addRequestProperty(RequestHeader.Field.ACCEPT,
-                    RequestHeader.DataType.TEXT_XML);
+//            connection.addRequestProperty(RequestHeader.Field.ACCEPT,
+//                    RequestHeader.DataType.APPLICATION_JSON);
+//
+//            connection.addRequestProperty(RequestHeader.Field.ACCEPT,
+//                    RequestHeader.DataType.APPLICATION_XML);
+//
+//            connection.addRequestProperty(RequestHeader.Field.ACCEPT,
+//                    RequestHeader.DataType.TEXT_PLAIN);
+//
+//            connection.addRequestProperty(RequestHeader.Field.ACCEPT,
+//                    RequestHeader.DataType.TEXT_HTML);
+//
+//            connection.addRequestProperty(RequestHeader.Field.ACCEPT,
+//                    RequestHeader.DataType.TEXT_XML);
 
 
             /**
@@ -291,20 +291,20 @@ public class HttpConnection {
                 /**
                  * Different text formats that can be sent across the network.
                  */
-                connection.addRequestProperty(RequestHeader.Field.CONTENT_TYPE,
-                        RequestHeader.DataType.APPLICATION_JSON + "; charset=UTF-8");
-
-                connection.addRequestProperty(RequestHeader.Field.CONTENT_TYPE,
-                        RequestHeader.DataType.APPLICATION_XML + "; charset=UTF-8");
-
-                connection.addRequestProperty(RequestHeader.Field.CONTENT_TYPE,
-                        RequestHeader.DataType.TEXT_PLAIN + "; charset=UTF-8");
-
-                connection.addRequestProperty(RequestHeader.Field.CONTENT_TYPE,
-                        RequestHeader.DataType.TEXT_HTML + "; charset=UTF-8");
-
-                connection.addRequestProperty(RequestHeader.Field.CONTENT_TYPE,
-                        RequestHeader.DataType.TEXT_XML + "; charset=UTF-8");
+//                connection.addRequestProperty(RequestHeader.Field.CONTENT_TYPE,
+//                        RequestHeader.DataType.APPLICATION_JSON + "; charset=UTF-8");
+//
+//                connection.addRequestProperty(RequestHeader.Field.CONTENT_TYPE,
+//                        RequestHeader.DataType.APPLICATION_XML + "; charset=UTF-8");
+//
+//                connection.addRequestProperty(RequestHeader.Field.CONTENT_TYPE,
+//                        RequestHeader.DataType.TEXT_PLAIN + "; charset=UTF-8");
+//
+//                connection.addRequestProperty(RequestHeader.Field.CONTENT_TYPE,
+//                        RequestHeader.DataType.TEXT_HTML + "; charset=UTF-8");
+//
+//                connection.addRequestProperty(RequestHeader.Field.CONTENT_TYPE,
+//                        RequestHeader.DataType.TEXT_XML + "; charset=UTF-8");
 
                 /**
                  * You cant's surpass 15 seconds to send or read text.
@@ -391,14 +391,12 @@ public class HttpConnection {
      * @param requestHeader:    the header fields you want to pu into your http request, every {@link RequestHeader} has
      *                          its own request property
      *                          {@link Field}.
-     * @param storageDirectory: where you want to store your file.
      */
     public final HttpConnection getInputStream(@Nullable String url,
-                                        @Nullable RequestHeader requestHeader,
-                                        @NonNull String storageDirectory) {
+                                        @Nullable RequestHeader requestHeader) {
         this.dataType = DATATYPE_INPUT_STREAM;
         this.urlStr = url;
-        readFromServer(requestHeader, storageDirectory);
+        readFromServer(requestHeader, null);
         return this;
     }
 
@@ -974,13 +972,29 @@ public class HttpConnection {
     }
 
     /**
-     * The time before you quit trying to connect to the server, the default time is 15 seconds
+     * The time before you quit trying to connect to the server, the default time is 3 seconds
      *
      * @param connectionTimeout: connectTimeOut in millis
      */
     public HttpConnection setConnectionTimeout(int connectionTimeout) {
         this.connectionTimeout = connectionTimeout;
         return this;
+    }
+
+    public int getConnectionTimeout() {
+        return connectionTimeout;
+    }
+
+    /**
+     * the time before connecting to the server and waiting the first bytes of data to reach u,
+     */
+    public HttpConnection setReadTimeout(int readTimeout) {
+        this.readTimeout = readTimeout;
+        return this;
+    }
+
+    public int getReadTimeout() {
+        return readTimeout;
     }
 
     public int getSuccessfulResponseCode() {

@@ -101,12 +101,14 @@ public class RequestHeader {
         String APPLICATION_SVG_XML = "application/svg+xml";
         String APPLICATION_XHTML_XML = "application/xhtml+xml";
         String APPLICATION_XML = "application/xml";
+        String APPLICATION_JSON_GITHUB = "application/vnd.github.v3+json";
+        String APPLICATION_ANDROID = "application/vnd.android.package-archive";
         String MULTIPART_FORM_DATA = "multipart/form-data";
         String MEDIA_TYPE_WILDCARD = "*";
         String WILDCARD = "*/*";
         String ZIP = "application/zip";
-        String JAR = "application/java-archive";
         String RAR = "application/x-rar-compressed";
+        String JAR_FILE = "application/java-archive";
         String TAR = "application/x-tar";
         String XLS = "application/vnd.ms-excel";
         String XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";

@@ -348,10 +348,10 @@ public class HttpConnection {
      * <p>
      * Result in callback methods will be a String equal to the returned value from server.
      *
-     * @param url:            url you want to get your data from.
-     * @param requestHeader:  the header fields you want to pu into your http request, every {@link RequestHeader} has
-     *                        its own request property
-     *                        {@link Field}.
+     * @param url:           url you want to get your data from.
+     * @param requestHeader: the header fields you want to pu into your http request, every {@link RequestHeader} has
+     *                       its own request property
+     *                       {@link Field}.
      */
     public final HttpConnection getText(@Nullable String url,
                                         @Nullable RequestHeader requestHeader) {
@@ -387,13 +387,13 @@ public class HttpConnection {
      * <p>
      * Result in callback methods will be a String equal to the returned value from server.
      *
-     * @param url:              url you want to get your data from.
-     * @param requestHeader:    the header fields you want to pu into your http request, every {@link RequestHeader} has
-     *                          its own request property
-     *                          {@link Field}.
+     * @param url:           url you want to get your data from.
+     * @param requestHeader: the header fields you want to pu into your http request, every {@link RequestHeader} has
+     *                       its own request property
+     *                       {@link Field}.
      */
     public final HttpConnection getInputStream(@Nullable String url,
-                                        @Nullable RequestHeader requestHeader) {
+                                               @Nullable RequestHeader requestHeader) {
         this.dataType = DATATYPE_INPUT_STREAM;
         this.urlStr = url;
         readFromServer(requestHeader, null);
@@ -457,9 +457,9 @@ public class HttpConnection {
                              */
                             informUserWithNewFlag(FLAG_REQUEST_UNACCEPTED, response.setResult(errorMessage));
 
-                            reader.close();
-                            inputStream.close();
-                            connection.disconnect();
+                            if (reader != null) reader.close();
+                            if (inputStream != null) inputStream.close();
+                            if (connection != null) connection.disconnect();
 
                             return;
                         } else {
@@ -487,7 +487,7 @@ public class HttpConnection {
                                     } catch (IOException e) {
                                         if (e != null) {
                                             e.printStackTrace();
-                                            Log.e("Arrowbow_library", e.getMessage());
+//                                            Log.e("Arrowbow_library", e.getMessage());
                                         }
                                     } finally {
                                         /**
@@ -547,7 +547,7 @@ public class HttpConnection {
                     } catch (IOException e) {
                         if (e != null) {
                             e.printStackTrace();
-                            Log.e("Arrowbow_library", e.getMessage());
+//                            Log.e("Arrowbow_library", e.getMessage());
                         }
                         informUserWithNewFlag(FLAG_ERROR_MESSAGE, null);
                         return;
@@ -561,7 +561,7 @@ public class HttpConnection {
                             } catch (IOException e) {
                                 if (e != null) {
                                     e.printStackTrace();
-                                    Log.e("Arrowbow_library", e.getMessage());
+//                                    Log.e("Arrowbow_library", e.getMessage());
                                 }
                             }
                         }
@@ -834,7 +834,7 @@ public class HttpConnection {
                             } catch (IOException e) {
                                 if (e != null) {
                                     e.printStackTrace();
-                                    Log.e("Arrowbow_library", e.getMessage());
+//                                    Log.e("Arrowbow_library", e.getMessage());
                                 }
                                 /**
                                  * Notify User with new occurring event
@@ -880,7 +880,7 @@ public class HttpConnection {
                             } catch (IOException e) {
                                 if (e != null) {
                                     e.printStackTrace();
-                                    Log.e("Arrowbow_library", e.getMessage());
+//                                    Log.e("Arrowbow_library", e.getMessage());
                                 }
                                 informUserWithNewFlag(FLAG_REQUEST_UNACCEPTED, null);
 
@@ -893,7 +893,7 @@ public class HttpConnection {
                 } catch (IOException e) {
                     if (e != null) {
                         e.printStackTrace();
-                        Log.e("Arrowbow_library", e.getMessage());
+//                        Log.e("Arrowbow_library", e.getMessage());
                     }
                     informUserWithNewFlag(FLAG_REQUEST_UNACCEPTED, null);
 
@@ -908,7 +908,7 @@ public class HttpConnection {
                         } catch (Exception e) {
                             if (e != null) {
                                 e.printStackTrace();
-                                Log.e("Arrowbow_library", e.getMessage());
+//                                Log.e("Arrowbow_library", e.getMessage());
                             }
                         }
                     }

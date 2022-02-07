@@ -487,7 +487,7 @@ public class HttpConnection {
                                     } catch (IOException e) {
                                         if (e != null) {
                                             e.printStackTrace();
-//                                            Log.e("Arrowbow_library", e.getMessage());
+                                            Log.e("Arrowbow_library", e.getMessage());
                                         }
                                     } finally {
                                         /**
@@ -547,7 +547,7 @@ public class HttpConnection {
                     } catch (IOException e) {
                         if (e != null) {
                             e.printStackTrace();
-//                            Log.e("Arrowbow_library", e.getMessage());
+                            Log.e("Arrowbow_library", e.getMessage());
                         }
                         informUserWithNewFlag(FLAG_ERROR_MESSAGE, null);
                         return;
@@ -834,7 +834,7 @@ public class HttpConnection {
                             } catch (IOException e) {
                                 if (e != null) {
                                     e.printStackTrace();
-//                                    Log.e("Arrowbow_library", e.getMessage());
+                                    Log.e("Arrowbow_library", e.getMessage());
                                 }
                                 /**
                                  * Notify User with new occurring event
@@ -880,7 +880,7 @@ public class HttpConnection {
                             } catch (IOException e) {
                                 if (e != null) {
                                     e.printStackTrace();
-//                                    Log.e("Arrowbow_library", e.getMessage());
+                                    Log.e("Arrowbow_library", e.getMessage());
                                 }
                                 informUserWithNewFlag(FLAG_REQUEST_UNACCEPTED, null);
 
@@ -893,7 +893,7 @@ public class HttpConnection {
                 } catch (IOException e) {
                     if (e != null) {
                         e.printStackTrace();
-//                        Log.e("Arrowbow_library", e.getMessage());
+                        Log.e("Arrowbow_library", e.getMessage());
                     }
                     informUserWithNewFlag(FLAG_REQUEST_UNACCEPTED, null);
 
@@ -908,7 +908,7 @@ public class HttpConnection {
                         } catch (Exception e) {
                             if (e != null) {
                                 e.printStackTrace();
-//                                Log.e("Arrowbow_library", e.getMessage());
+                                Log.e("Arrowbow_library", e.getMessage());
                             }
                         }
                     }
